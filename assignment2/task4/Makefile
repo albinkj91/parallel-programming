@@ -1,16 +1,19 @@
-PROG=numerical_integration
+NUM=numerical_integration
+BENCH=benchmark_example
+TEST=testMain
+FLAKY=task3
 
-all: $(PROG).cpp
-	g++ -std=c++11 -Wall -pthread $(PROG).cpp -o $(PROG)
-
-list:
-	g++ -std=c++11 -Wall -pthread benchmark_example.cpp -o benchmark_example
+task_1: $(NUM).cpp
+	g++ -std=c++11 -Wall -pthread $(NUM).cpp -o $(NUM)
 
 test:
-	g++ -std=c++11 -Wall -pthread testMain.cpp -o testMain
+	g++ -std=c++11 -Wall -pthread $(TEST).cpp -o $(TEST)
 
 task_3:
-	g++ -std=c++11 -Wall -pthread task3.cpp -o task3
+	g++ -std=c++11 -Wall -pthread $(FLAKY).cpp -o $(FLAKY)
+
+task_4:
+	g++ -std=c++11 -Wall -pthread $(BENCH).cpp -o $(BENCH)
 
 clean:
-	$(RM) $(PROG)
+	$(RM) $(NUM) $(BENCH) $(TEST) $(FLAKY)
