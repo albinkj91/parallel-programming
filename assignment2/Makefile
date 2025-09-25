@@ -1,7 +1,9 @@
-NUM=numerical_integration
-BENCH=benchmark_example
+NUM=task1/numerical_integration
+FLAKY=task3/flaky
+BENCH=task4/benchmark_example
 TEST=testMain
-FLAKY=task3
+
+all: task_1 task_3 task_4
 
 task_1: $(NUM).cpp
 	g++ -std=c++11 -Wall -pthread $(NUM).cpp -o $(NUM)
