@@ -3,6 +3,7 @@
 #include <random>
 #include <sstream>
 #include <string>
+#include <cstring>
 
 #include "benchmark.hpp"
 #include "sorted_list.hpp"
@@ -15,6 +16,15 @@
 static const int DATA_VALUE_RANGE_MIN = 0;
 static const int DATA_VALUE_RANGE_MAX = 256;
 static const int DATA_PREFILL = 512;
+
+void usage(char *program)
+{
+  std::cout << "Usage: " << program << " T [<number of trapezes>]" << std::endl;
+  std::cout << std::endl;
+  std::cout << "  T: number of threads" << std::endl;
+  std::cout << "Optional: list version, defaults to non-thread-safe version if not specified or invalid" << std::endl;
+  exit(1);
+}
 
 template<typename List>
 void read(List& l, int random) {
@@ -46,7 +56,43 @@ void mixed(List& l, int random) {
 	}
 }
 
+template<typename List>
+void run_benchmark(List& l1, List& l2, int threadcnt, std::uniform_int_distribution<int> uniform_dist, std::mt19937 engine) {
+	/* example use of benchmarking */
+	{
+		/* prefill list with 1024 elements */
+		for(int i = 0; i < DATA_PREFILL; i++) {
+			l1.insert(uniform_dist(engine));
+		}
+		benchmark(threadcnt, u8"read", [&l1](int random){
+			read(l1, random);
+		});
+		benchmark(threadcnt, u8"update", [&l1](int random){
+			update(l1, random);
+		});
+	}
+
+	{
+		/* start with fresh list: update test left list in random size */
+		/* prefill list with 1024 elements */
+		for(int i = 0; i < DATA_PREFILL; i++) {
+			l2.insert(uniform_dist(engine));
+		}
+		benchmark(threadcnt, u8"mixed", [&l2](int random){
+			mixed(l2, random);
+		});
+	}
+}
+
 int main(int argc, char* argv[]) {
+	for (int i = 1; i < argc; ++i) {
+    	if (strcmp(argv[i], "-h") == 0) {
+    	  // DEBUGGING
+    	  // std::cout << "-h detected" << std::endl;
+    	  usage(argv[0]);
+		}
+	}
+	int version = 0;
 	/* get number of threads from command line */
 	if(argc < 2) {
 		std::cerr << u8"Please specify number of worker threads: " << argv[0] << u8" <number>\n";
@@ -58,35 +104,58 @@ int main(int argc, char* argv[]) {
 		std::cerr << u8"Invalid number of threads '" << argv[1] << u8"'\n";
 		std::exit(EXIT_FAILURE);
 	}
+	if (argc == 3) {
+		version = std::stoi(argv[2]);
+		if (version > 5 || version < 0) {
+			std::cout << "Default version non-thread-safe selected" << std::endl;
+		} else {
+			std::cout << "Version selected: " << version << std::endl;
+		}
+	} else {
+		std::cout << "Default version non-thread-safe selected" << std::endl;
+	}
 	/* set up random number generator */
 	std::random_device rd;
 	std::mt19937 engine(rd());
 	std::uniform_int_distribution<int> uniform_dist(DATA_VALUE_RANGE_MIN, DATA_VALUE_RANGE_MAX);
 
-	/* example use of benchmarking */
-	{
-		sorted_list_mcs<int> l1;
-		/* prefill list with 1024 elements */
-		for(int i = 0; i < DATA_PREFILL; i++) {
-			l1.insert(uniform_dist(engine));
+	switch (version) {
+		case 1: {
+			sorted_list_cgl<int> l1;
+			sorted_list_cgl<int> l2;
+			run_benchmark(l1, l2, threadcnt, uniform_dist, engine);
+			break;
 		}
-		benchmark(threadcnt, u8"non-thread-safe read", [&l1](int random){
-			read(l1, random);
-		});
-		benchmark(threadcnt, u8"non-thread-safe update", [&l1](int random){
-			update(l1, random);
-		});
-	}
-	{
-		/* start with fresh list: update test left list in random size */
-		sorted_list_mcs<int> l1;
-		/* prefill list with 1024 elements */
-		for(int i = 0; i < DATA_PREFILL; i++) {
-			l1.insert(uniform_dist(engine));
+		case 2: {
+			sorted_list_fgl<int> l1;
+			sorted_list_fgl<int> l2;
+			run_benchmark(l1, l2, threadcnt, uniform_dist, engine);
+			break;
 		}
-		benchmark(threadcnt, u8"non-thread-safe mixed", [&l1](int random){
-			mixed(l1, random);
-		});
+		case 3: {
+			sorted_list_cgl_tatas<int> l1;
+			sorted_list_cgl_tatas<int> l2;
+			run_benchmark(l1, l2, threadcnt, uniform_dist, engine);
+			break;
+		}
+		case 4: {
+			// sorted_list_fgl_tatas<int> l1;
+			// sorted_list_fgl_tatas<int> l2;
+			// run_benchmark(l1, l2, threadcnt, uniform_dist, engine);
+			break;
+		}
+		case 5: {
+			sorted_list_mcs<int> l1;
+			sorted_list_mcs<int> l2;
+			run_benchmark(l1, l2, threadcnt, uniform_dist, engine);
+			break;
+		}
+		default:
+			sorted_list<int> l1;
+			sorted_list<int> l2;
+			run_benchmark(l1, l2, threadcnt, uniform_dist, engine);
+			break;
 	}
+
 	return EXIT_SUCCESS;
 }
