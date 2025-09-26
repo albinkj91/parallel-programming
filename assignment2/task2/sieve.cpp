@@ -12,9 +12,14 @@ using namespace std;
 void sieve_chunk(int32_t const start, int32_t const end, vector<int32_t> const& primes, vector<int32_t> & nums)
 {
     cout << "This thread starts at " << start << " and ends at " << end << '.' << endl;
-    for(int32_t i{start}; i < end; ++i)
+    for(auto prime : primes)
     {
-
+        cout << "prime: " << prime << endl;
+        for(int32_t j{start}; j < end; ++j)
+        {
+            if(nums.at(j) % prime == 0)
+                nums.at(j) = -1;
+        }
     }
 }
 
@@ -61,16 +66,12 @@ int main(int argc, char* argv[])
         {
             if(nums.at(i) % current_prime == 0)
                 nums.at(i) = -1;
-            else
-            {
-                cout << nums.at(i) << ' ';
-            }
         }
-        cout << '\n' << endl;
         do
             current_prime = nums.at(++current_index);
         while(current_prime == -1 && current_index < nums.size());
     }
+    cout << endl;
 
     int32_t parallel_index{current_prime};
     int32_t chunk_size{(max - parallel_index) / thread_count};
@@ -79,8 +80,8 @@ int main(int argc, char* argv[])
 
     threads.push_back(thread{
             sieve_chunk,
-            parallel_index,
-            parallel_index + chunk_size + remainder,
+            parallel_index - 1,
+            parallel_index + chunk_size + remainder - 1,
             ref(primes),
             ref(nums)});
 
@@ -90,11 +91,10 @@ int main(int argc, char* argv[])
         parallel_index += chunk_size;
         threads.push_back(thread{
                 sieve_chunk,
-                parallel_index + 1,
-                parallel_index+chunk_size,
+                parallel_index - 1,
+                parallel_index+chunk_size - 1,
                 ref(primes),
                 ref(nums)});
-        cout << "here" << endl;
     }
 
     for(auto& thread : threads)
@@ -103,7 +103,5 @@ int main(int argc, char* argv[])
     cout << "done" << endl;
     copy_if(nums.begin(), nums.end(),
             ostream_iterator<int>{cout, " "}, [](int i){return i != -1;});
-    //copy(primes.begin(), primes.end(),
-    //        ostream_iterator<int32_t>{cout, ","});
     cout << endl;
 }
