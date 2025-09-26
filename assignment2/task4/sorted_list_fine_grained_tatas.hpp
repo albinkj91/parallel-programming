@@ -12,8 +12,23 @@ struct atomic_node {
 
 template<typename T>
 class sorted_list_fgl_tatas {
-    std::mutex head_guard;
-	public: atomic_node<T>* first = nullptr;
+    std::atomic<bool> head_guard;
+    atomic_node<T>* first = nullptr;
+
+    void tatas_lock()
+    {
+        while(true)
+        {
+            while(atomic_b.load());
+            if(!atomic_b.exchange(true))
+                return;
+        }
+    }
+
+    void tatas_unlock()
+    {
+        atomic_b.exchange(false);
+    }
 
 	public:
 		sorted_list_fgl_tatas() = default;
@@ -29,11 +44,11 @@ class sorted_list_fgl_tatas {
 
 		void insert(T v) {
 			/* first find position */
-            head_guard.lock();
+            head_guard.tatas_lock();
 			atomic_node<T>* pred = nullptr;
 			atomic_node<T>* succ = first;
             if (first) first->lock.lock();
-            if (succ != nullptr && succ->value < v) head_guard.unlock();
+            if (succ != nullptr && succ->value < v) head_guard.tatas_unlock();
 			while(succ != nullptr && succ->value < v) {
                 if (pred) pred->lock.unlock();
 				pred = succ;
@@ -49,7 +64,7 @@ class sorted_list_fgl_tatas {
 			current->next = succ;
 			if(pred == nullptr) {
 				first = current;
-                head_guard.unlock();
+                head_guard.tatas_unlock();
 			} else {
 				pred->next = current;
 			}
@@ -59,11 +74,11 @@ class sorted_list_fgl_tatas {
 
 		void remove(T v) {
 			/* first find position */
-            head_guard.lock();
+            head_guard.tatas_lock();
 			atomic_node<T>* pred = nullptr;
 			atomic_node<T>* current = first;
             if (current) current->lock.lock();
-            if (current->value != v) head_guard.unlock();
+            if (current->value != v) head_guard.tatas_unlock();
 			while(current != nullptr && current->value < v) {
                 if (pred) pred->lock.unlock();
 				pred = current;
@@ -79,7 +94,7 @@ class sorted_list_fgl_tatas {
 			/* remove current */
 			if(pred == nullptr) {
 				first = current->next;
-                head_guard.unlock();
+                head_guard.tatas_unlock();
 			} else {
 				pred->next = current->next;
 			}
@@ -91,11 +106,11 @@ class sorted_list_fgl_tatas {
 		std::size_t count(T v) {
 			std::size_t cnt = 0;
 			/* first go to value v */
-            head_guard.lock();
+            head_guard.tatas_lock();
             atomic_node<T>* prev = nullptr;
 			atomic_node<T>* current = first;
             if (current) current->lock.lock();
-            head_guard.unlock();
+            head_guard.tatas_unlock();
 			while(current != nullptr && current->value < v) {
                 if (current->next) current->next->lock.lock();
                 prev = current;

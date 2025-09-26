@@ -10,7 +10,7 @@
 #include "sorted_list_coarse_grained_locking.hpp"
 #include "sorted_list_fine_grained_locking.hpp"
 #include "sorted_list_coarse_grained_tatas.hpp"
-#include "sorted_list_fine_grained_tatas.hpp"
+//#include "sorted_list_fine_grained_tatas.hpp"
 #include "sorted_list_mcs.hpp"
 
 static const int DATA_VALUE_RANGE_MIN = 0;
@@ -138,12 +138,12 @@ int main(int argc, char* argv[]) {
 			run_benchmark(l1, l2, threadcnt, uniform_dist, engine);
 			break;
 		}
-		case 4: {
-			// sorted_list_fgl_tatas<int> l1;
-			// sorted_list_fgl_tatas<int> l2;
-			// run_benchmark(l1, l2, threadcnt, uniform_dist, engine);
-			break;
-		}
+		//case 4: {
+		//	sorted_list_fgl_tatas<int> l1;
+		//	sorted_list_fgl_tatas<int> l2;
+		//	run_benchmark(l1, l2, threadcnt, uniform_dist, engine);
+		//	break;
+		//}
 		case 5: {
 			sorted_list_mcs<int> l1;
 			sorted_list_mcs<int> l2;

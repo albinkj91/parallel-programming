@@ -9,7 +9,7 @@ class sorted_list_cgl_tatas {
     node<T>* first = nullptr;
     std::atomic<bool> atomic_b{false};
 
-    void tasas_lock()
+    void tatas_lock()
     {
         while(true)
         {
@@ -19,7 +19,7 @@ class sorted_list_cgl_tatas {
         }
     }
 
-    void tasas_unlock()
+    void tatas_unlock()
     {
         atomic_b.exchange(false);
     }
@@ -38,7 +38,7 @@ class sorted_list_cgl_tatas {
 
         void insert(T v) {
             /* first find position */
-            tasas_lock();
+            tatas_lock();
 			node<T>* pred = nullptr;
 			node<T>* succ = first;
 			while(succ != nullptr && succ->value < v) {
@@ -57,12 +57,12 @@ class sorted_list_cgl_tatas {
 			} else {
 				pred->next = current;
 			}
-            tasas_unlock();
+            tatas_unlock();
         }
 
         void remove(T v) {
             /* first find position */
-            tasas_lock();
+            tatas_lock();
 			node<T>* pred = nullptr;
 			node<T>* current = first;
 			while(current != nullptr && current->value < v) {
@@ -71,7 +71,7 @@ class sorted_list_cgl_tatas {
 			}
 			if(current == nullptr || current->value != v) {
 				/* v not found */
-                tasas_unlock();
+                tatas_unlock();
 				return;
 			}
 			/* remove current */
@@ -81,11 +81,11 @@ class sorted_list_cgl_tatas {
 				pred->next = current->next;
 			}
 			delete current;
-            tasas_unlock();
+            tatas_unlock();
         }
 
         std::size_t count(T v) {
-            tasas_lock();
+            tatas_lock();
             std::size_t cnt = 0;
 			/* first go to value v */
 			node<T>* current = first;
@@ -97,7 +97,7 @@ class sorted_list_cgl_tatas {
 				cnt++;
 				current = current->next;
 			}
-            tasas_unlock();
+            tatas_unlock();
 			return cnt;
         }
 };
