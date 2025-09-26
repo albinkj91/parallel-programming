@@ -1,5 +1,6 @@
-#include <list>
+#include <vector>
 #include <iostream>
+#include <sstream>
 #include <cstdint>
 #include <numeric>
 #include <iterator>
@@ -17,40 +18,42 @@ void usage(string const& program)
 
 int main(int argc, char* argv[])
 {
-    if(argc < 2)
+    if(argc < 3)
         usage(argv[0]);
-    uint32_t max{static_cast<uint32_t>(stoul(argv[1]))};
 
-    list<uint32_t> nums{};
-    uint32_t start{2};
+    istringstream ss{argv[2]};
+    int32_t max{};
+    ss >> max;
+    if(ss.fail())
+        usage(argv[0]);
+
+    vector<int32_t> nums{};
+    vector<int32_t> primes{};
+    int32_t start{2};
     generate_n(back_inserter(nums), max-1, [&start](){
                 return start++;
             });
 
-    auto current_prime{nums.begin()};
-    uint32_t target{static_cast<uint32_t>(sqrt(max))};
-    cout << "Target: " << target << endl;
-    while(*current_prime <= target)
+    uint32_t current_index{};
+    int32_t current_prime{nums.front()};
+    cout << "Max: " << max << endl;
+    while(current_prime*current_prime <= max)
     {
-        cout << "current_prime: " << *current_prime << endl;
-        auto it{current_prime};
-        ++it;
-        for(; it != nums.end();)
+        cout << "current_prime: " << current_prime << endl;
+        for(size_t i{current_index+1}; i < nums.size(); ++i)
         {
-            if(*it % *current_prime == 0)
-            {
-                it = nums.erase(it);
-            }
+            if(nums.at(i) % current_prime == 0)
+                nums.at(i) = -1;
             else
-            {
-                cout << *it << ' ';
-                ++it;
-            }
+                cout << nums.at(i) << ' ';
         }
         cout << '\n' << endl;
-        ++current_prime;
+        do
+            current_prime = nums.at(++current_index);
+        while(current_prime == -1 && current_index < nums.size());
     }
 
-    copy(nums.begin(), nums.end(),
-            ostream_iterator<int>{cout, " "});
+    copy_if(nums.begin(), nums.end(),
+            ostream_iterator<int>{cout, " "}, [](int i){return i != -1;});
+    cout << endl;
 }
