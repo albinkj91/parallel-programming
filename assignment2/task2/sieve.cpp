@@ -7,14 +7,13 @@
 #include <algorithm>
 #include <cmath>
 #include <thread>
+#include <chrono>
 using namespace std;
 
 void sieve_chunk(int32_t const start, int32_t const end, vector<int32_t> const& primes, vector<int32_t> & nums)
 {
-    cout << "This thread starts at " << start << " and ends at " << end << '.' << endl;
     for(auto prime : primes)
     {
-        cout << "prime: " << prime << endl;
         for(int32_t j{start}; j < end; ++j)
         {
             if(nums.at(j) % prime == 0)
@@ -57,10 +56,9 @@ int main(int argc, char* argv[])
 
     uint32_t current_index{};
     int32_t current_prime{nums.front()};
-    cout << "Max: " << max << endl;
+    auto start_time{chrono::steady_clock::now()};
     while(current_prime*current_prime <= max)
     {
-        cout << "current_prime: " << current_prime << endl;
         primes.push_back(current_prime);
         for(size_t i{current_index+1}; i < sqrt(max); ++i)
         {
@@ -71,7 +69,6 @@ int main(int argc, char* argv[])
             current_prime = nums.at(++current_index);
         while(current_prime == -1 && current_index < nums.size());
     }
-    cout << endl;
 
     int32_t parallel_index{current_prime};
     int32_t chunk_size{(max - parallel_index) / thread_count};
@@ -100,8 +97,8 @@ int main(int argc, char* argv[])
     for(auto& thread : threads)
         thread.join();
 
-    cout << "done" << endl;
+    auto elapsed{chrono::steady_clock::now() - start_time};
     copy_if(nums.begin(), nums.end(),
             ostream_iterator<int>{cout, " "}, [](int i){return i != -1;});
-    cout << endl;
+    cout << "\nElapsed time: " << chrono::duration_cast<chrono::milliseconds>(elapsed).count() << " ms." << endl;
 }
