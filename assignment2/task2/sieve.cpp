@@ -6,7 +6,17 @@
 #include <iterator>
 #include <algorithm>
 #include <cmath>
+#include <thread>
 using namespace std;
+
+void sieve_chunk(int32_t const start, int32_t const end, vector<int32_t> const& primes, vector<int32_t> & nums)
+{
+    cout << "This thread starts at " << start << " and ends at " << end << '.' << endl;
+    for(int32_t i{start}; i < end; ++i)
+    {
+
+    }
+}
 
 void usage(string const& program)
 {
@@ -21,7 +31,13 @@ int main(int argc, char* argv[])
     if(argc < 3)
         usage(argv[0]);
 
-    istringstream ss{argv[2]};
+    istringstream ss{argv[1]};
+    int32_t thread_count{};
+    ss >> thread_count;
+    if(ss.fail())
+        usage(argv[0]);
+
+    ss = istringstream{argv[2]};
     int32_t max{};
     ss >> max;
     if(ss.fail())
@@ -40,12 +56,15 @@ int main(int argc, char* argv[])
     while(current_prime*current_prime <= max)
     {
         cout << "current_prime: " << current_prime << endl;
-        for(size_t i{current_index+1}; i < nums.size(); ++i)
+        primes.push_back(current_prime);
+        for(size_t i{current_index+1}; i < sqrt(max); ++i)
         {
             if(nums.at(i) % current_prime == 0)
                 nums.at(i) = -1;
             else
+            {
                 cout << nums.at(i) << ' ';
+            }
         }
         cout << '\n' << endl;
         do
@@ -53,7 +72,38 @@ int main(int argc, char* argv[])
         while(current_prime == -1 && current_index < nums.size());
     }
 
+    int32_t parallel_index{current_prime};
+    int32_t chunk_size{(max - parallel_index) / thread_count};
+    int32_t remainder{(max - parallel_index) % thread_count};
+    vector<thread> threads{};
+
+    threads.push_back(thread{
+            sieve_chunk,
+            parallel_index,
+            parallel_index + chunk_size + remainder,
+            ref(primes),
+            ref(nums)});
+
+    parallel_index += remainder;
+    for(int i{1}; i < thread_count; ++i)
+    {
+        parallel_index += chunk_size;
+        threads.push_back(thread{
+                sieve_chunk,
+                parallel_index + 1,
+                parallel_index+chunk_size,
+                ref(primes),
+                ref(nums)});
+        cout << "here" << endl;
+    }
+
+    for(auto& thread : threads)
+        thread.join();
+
+    cout << "done" << endl;
     copy_if(nums.begin(), nums.end(),
             ostream_iterator<int>{cout, " "}, [](int i){return i != -1;});
+    //copy(primes.begin(), primes.end(),
+    //        ostream_iterator<int32_t>{cout, ","});
     cout << endl;
 }
