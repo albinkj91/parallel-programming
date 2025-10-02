@@ -207,7 +207,8 @@ void demonstrateError() {
  * Prepares and runs benchmark
  */
 void benchmark(int num_of_threads, int dimI, int dimJ, int dimK, int collapse_level) {
-    std::cout << "Initializing matrices\n";
+    // For debugging: Initialization of big matrices may take some time
+    // std::cout << "Initializing matrices\n";
     int **a = new int*[dimI];
     fill_array_random(a, dimI, dimK);
 
@@ -217,7 +218,8 @@ void benchmark(int num_of_threads, int dimI, int dimJ, int dimK, int collapse_le
     int **c = new int*[dimI];
     init_array(c, dimI, dimJ);
 
-    std::cout << "Starting benchmark\n";
+    // For debugging: Initialization of big matrices may take some time
+    // std::cout << "Starting benchmark\n";
     run_benchmark(a, b, c, num_of_threads, dimI, dimJ, dimK, collapse_level);
 }
 
