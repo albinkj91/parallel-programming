@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
         thread.join();
 
     auto elapsed{chrono::steady_clock::now() - start_time};
-    copy_if(nums.begin(), nums.end(),
-            ostream_iterator<int>{cout, " "}, [](int i){return i != -1;});
+    //copy_if(nums.begin(), nums.end(),
+    //        ostream_iterator<int>{cout, " "}, [](int i){return i != -1;});
     cout << "\nElapsed time: " << chrono::duration_cast<chrono::milliseconds>(elapsed).count() << " ms." << endl;
 }

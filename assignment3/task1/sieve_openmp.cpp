@@ -39,23 +39,26 @@ int main(int argc, char* argv[])
     uint32_t current_index{};
     int32_t current_prime{nums.front()};
     auto start_time{chrono::steady_clock::now()};
-#pragma omp parallel
-{
-    while(current_prime*current_prime <= max)
+
+    omp_set_num_threads(12);
+    #pragma omp parallel
     {
-        for(size_t i{current_index+1}; i < nums.size(); ++i)
+        while(current_prime*current_prime <= max)
         {
-            if(nums.at(i) % current_prime == 0)
-                nums.at(i) = -1;
+            for(size_t i{current_index+1}; i < nums.size(); ++i)
+            {
+                if(nums.at(i) % current_prime == 0)
+                    nums.at(i) = -1;
+            }
+            do
+                current_prime = nums.at(++current_index);
+            while(current_prime == -1 && current_index < nums.size());
         }
-        do
-            current_prime = nums.at(++current_index);
-        while(current_prime == -1 && current_index < nums.size());
     }
-}
+
     auto elapsed{chrono::steady_clock::now() - start_time};
 
-    copy_if(nums.begin(), nums.end(),
-            ostream_iterator<int>{cout, " "}, [](int i){return i != -1;});
+    //copy_if(nums.begin(), nums.end(),
+    //        ostream_iterator<int>{cout, " "}, [](int i){return i != -1;});
     cout << "\nElapsed time: " << chrono::duration_cast<chrono::milliseconds>(elapsed).count() << " ms." << endl;
 }
