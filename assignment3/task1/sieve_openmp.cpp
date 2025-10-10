@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
     start = static_cast<uint32_t>(primes.back());
 
     omp_set_num_threads(12);
-    #pragma omp parallel for collapse(2) shared(nums, primes) schedule(auto)
+    #pragma omp parallel for collapse(2) shared(nums) private(primes) schedule(dynamic)
     for(uint32_t i= start; i < nums.size(); ++i)
     {
         for(uint32_t j = 0; j < primes.size(); ++j)
