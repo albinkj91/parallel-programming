@@ -6,7 +6,6 @@
 #include <iterator>
 #include <algorithm>
 #include <cmath>
-#include <chrono>
 #include <omp.h>
 using namespace std;
 
@@ -30,35 +29,45 @@ int main(int argc, char* argv[])
         usage(argv[0]);
 
     vector<int32_t> nums{};
-    vector<int32_t> primes{};
-    int32_t start{2};
+    vector<uint32_t> primes{};
+    uint32_t start{2};
     generate_n(back_inserter(nums), max-1, [&start](){
                 return start++;
             });
 
     uint32_t current_index{};
     int32_t current_prime{nums.front()};
-    auto start_time{chrono::steady_clock::now()};
+    auto start_time{omp_get_wtime()};
+    while(current_prime*current_prime <= max)
+    {
+        primes.push_back(current_prime);
+        for(uint32_t i{current_index+1}; i < sqrt(max); ++i)
+        {
+            if(nums.at(i) % current_prime == 0)
+                nums.at(i) = -1;
+        }
+        do
+            current_prime = nums.at(++current_index);
+        while(current_prime == -1 && current_index < nums.size());
+    }
+
+    start = static_cast<uint32_t>(primes.back());
 
     omp_set_num_threads(12);
-    #pragma omp parallel
+    #pragma omp parallel for collapse(2) shared(nums, primes) schedule(auto)
+    for(uint32_t i= start; i < nums.size(); ++i)
     {
-        while(current_prime*current_prime <= max)
+        for(uint32_t j = 0; j < primes.size(); ++j)
         {
-            for(size_t i{current_index+1}; i < nums.size(); ++i)
-            {
-                if(nums.at(i) % current_prime == 0)
-                    nums.at(i) = -1;
-            }
-            do
-                current_prime = nums.at(++current_index);
-            while(current_prime == -1 && current_index < nums.size());
+            if(nums.at(i) % primes.at(j) == 0)
+                nums.at(i) = -1;
         }
     }
 
-    auto elapsed{chrono::steady_clock::now() - start_time};
-
+    // ****** Uncomment these two lines to see primes printed in console ******
     //copy_if(nums.begin(), nums.end(),
-    //        ostream_iterator<int>{cout, " "}, [](int i){return i != -1;});
-    cout << "\nElapsed time: " << chrono::duration_cast<chrono::milliseconds>(elapsed).count() << " ms." << endl;
+    //    ostream_iterator<int>{cout, " "}, [](int i){return i != -1;});
+
+    auto elapsed{omp_get_wtime() - start_time};
+    cout << "\nElapsed time: " << round(elapsed*1000) << " ms." << endl;
 }
