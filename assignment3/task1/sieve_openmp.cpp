@@ -41,7 +41,8 @@ int main(int argc, char* argv[])
     while(current_prime*current_prime <= max)
     {
         primes.push_back(current_prime);
-        for(uint32_t i{current_index+1}; i < sqrt(max); ++i)
+        uint32_t limit{static_cast<uint32_t>(sqrt(max))};
+        for(uint32_t i = current_index+1; i < limit; ++i)
         {
             if(nums.at(i) % current_prime == 0)
                 nums.at(i) = -1;
@@ -54,7 +55,7 @@ int main(int argc, char* argv[])
     start = static_cast<uint32_t>(primes.back());
 
     omp_set_num_threads(12);
-    #pragma omp parallel for collapse(2) shared(nums) private(primes) schedule(dynamic)
+    #pragma omp parallel for collapse(2) shared(nums, primes) schedule(static)
     for(uint32_t i= start; i < nums.size(); ++i)
     {
         for(uint32_t j = 0; j < primes.size(); ++j)
