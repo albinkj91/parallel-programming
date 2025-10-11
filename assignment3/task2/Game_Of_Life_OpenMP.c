@@ -105,7 +105,7 @@ int main (int argc, char * argv[]) {
     omp_set_num_threads(32);
 	gettimeofday(&ts,NULL);
 	for (t = 0 ; t < T ; t++) {
-        #pragma omp parallel for default(private) shared(previous, current, swap, N) collapse(2) schedule(static)
+        #pragma omp parallel for default(private) shared(previous, current, N) collapse(2)
 		for (i = 1 ; i < N-1 ; i++)
 			for (j = 1 ; j < N-1 ; j++) {
 				nbrs = previous[i+1][j+1] + previous[i+1][j] + previous[i+1][j-1]
