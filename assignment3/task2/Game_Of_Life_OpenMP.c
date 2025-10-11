@@ -102,7 +102,7 @@ int main (int argc, char * argv[]) {
 
 	/*Game of Life*/
 
-    omp_set_num_threads(32);
+    omp_set_num_threads(12);
 	gettimeofday(&ts,NULL);
 	for (t = 0 ; t < T ; t++) {
         #pragma omp parallel for default(private) shared(previous, current, N) collapse(2)
@@ -116,6 +116,9 @@ int main (int argc, char * argv[]) {
 				else 
 					current[i][j] = 0;
 			}
+        #ifdef OUTPUT
+		print_to_pgm(current, N, t+1);
+		#endif
 		swap = current;
 		current = previous;
 		previous = swap;
