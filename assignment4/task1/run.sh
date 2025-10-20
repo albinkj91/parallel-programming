@@ -1,10 +1,10 @@
-MAX=1000000
+MAX=100000
 
-./sequential $MAX
+./sieve_sequential $MAX
 
-./pthreads 32 $MAX
+./sieve_pthreads 32 $MAX
 
-./openmp $MAX
+./sieve_openmp $MAX
 
 mpiexec --hostfile one_host ./sieve_mpi_send_receive $MAX
 

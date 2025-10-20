@@ -28,15 +28,15 @@ void main_process(int argc, char** argv, int numOfProcesses) {
     if(ss.fail())
         usage(argv[0]);
 
+        
+        vector<int> nums{};
+        vector<int> primes{};
+        int start{2};
+        generate_n(back_inserter(nums), max-1, [&start](){
+            return start++;
+        });
+        
     double startTime = MPI_Wtime();
-
-    vector<int> nums{};
-    vector<int> primes{};
-    int start{2};
-    generate_n(back_inserter(nums), max-1, [&start](){
-                return start++;
-            });
-
     int current_index{};
     int current_prime{nums.front()};
     while(current_prime*current_prime <= max)

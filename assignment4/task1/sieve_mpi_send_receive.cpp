@@ -28,8 +28,6 @@ void main_process(int argc, char** argv, int numOfProcesses) {
     if(ss.fail())
         usage(argv[0]);
 
-    double startTime = MPI_Wtime();
-
     vector<int> nums{};
     vector<int> primes{};
     int start{2};
@@ -37,6 +35,7 @@ void main_process(int argc, char** argv, int numOfProcesses) {
                 return start++;
             });
 
+    double startTime = MPI_Wtime();
     int current_index{};
     int current_prime{nums.front()};
     while(current_prime*current_prime <= max)

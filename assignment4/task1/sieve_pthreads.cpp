@@ -10,16 +10,22 @@
 #include <chrono>
 using namespace std;
 
-void sieve_chunk(int32_t const start, int32_t const end, vector<int32_t> const& primes, vector<int32_t> & nums)
+void sieve_chunk(int32_t const start, int32_t const end, vector<int32_t> const& primes, int* result)
 {
-    for(auto prime : primes)
-    {
-        for(int32_t j{start}; j < end; ++j)
-        {
-            if(nums.at(j) % prime == 0)
-                nums.at(j) = -1;
+    int sum = 0;
+    bool cont = false;
+    for (int i = start; i < end; ++i) {
+        cont = false;
+        for (auto prime : primes) {
+            if (i % prime == 0) {
+                cont = true;
+                break;
+            }
         }
+        if (cont) continue;
+        ++sum;
     }
+    *result = sum;
 }
 
 void usage(string const& program)
@@ -62,43 +68,45 @@ int main(int argc, char* argv[])
         primes.push_back(current_prime);
         for(size_t i{current_index+1}; i < sqrt(max); ++i)
         {
-            if(nums.at(i) % current_prime == 0)
+            if(nums.at(i) % current_prime == 0) {
                 nums.at(i) = -1;
+            }
         }
         do
             current_prime = nums.at(++current_index);
         while(current_prime == -1 && current_index < nums.size());
     }
 
-    int32_t parallel_index{current_prime + 1};
-    int32_t chunk_size{(max - parallel_index) / thread_count};
-    int32_t remainder{(max - parallel_index) % thread_count};
+    start = primes.back() + 1;
+    int totalSize = max + 1 - start;
+    int chunkSize = totalSize / thread_count;
+    int remainder = totalSize % thread_count;
     vector<thread> threads{};
+    int* results = new int[thread_count];
 
-    threads.push_back(thread{
-            sieve_chunk,
-            parallel_index - 1,
-            parallel_index + chunk_size + remainder - 1,
-            ref(primes),
-            ref(nums)});
-
-    parallel_index += remainder;
-    for(int i{1}; i < thread_count; ++i)
+    for(int i = 0; i < thread_count; ++i)
     {
-        parallel_index += chunk_size;
+        int end = start + (i - 1 < remainder ? chunkSize + 1 : chunkSize);
         threads.push_back(thread{
                 sieve_chunk,
-                parallel_index - 1,
-                parallel_index+chunk_size - 1,
+                start,
+                end,
                 ref(primes),
-                ref(nums)});
+                &results[i]});
+        start = end;
     }
 
     for(auto& thread : threads)
         thread.join();
 
-    auto elapsed{chrono::steady_clock::now() - start_time};
+    int sum = primes.size();
+    for (int i = 0; i < thread_count; i++) {
+        sum += results[i];
+    }
+
+    auto end = chrono::steady_clock::now();
+    std::chrono::duration<double> duration = end - start_time;
     //copy_if(nums.begin(), nums.end(),
     //        ostream_iterator<int>{cout, " "}, [](int i){return i != -1;});
-    cout << "\nElapsed time: " << chrono::duration_cast<chrono::milliseconds>(elapsed).count() << " ms." << endl;
+    cout << sum << " primes found after " << duration.count() << "s." << endl;
 }

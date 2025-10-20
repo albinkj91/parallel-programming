@@ -44,31 +44,39 @@ int main(int argc, char* argv[])
         uint32_t limit{static_cast<uint32_t>(sqrt(max))};
         for(uint32_t i = current_index+1; i < limit; ++i)
         {
-            if(nums.at(i) % current_prime == 0)
-                nums.at(i) = -1;
+            if(nums[i] % current_prime == 0)
+                nums[i] = -1;
         }
         do
-            current_prime = nums.at(++current_index);
+            current_prime = nums[++current_index];
         while(current_prime == -1 && current_index < nums.size());
     }
 
     start = static_cast<uint32_t>(primes.back()) + 1;
 
-    // omp_set_num_threads(12);
     #pragma omp parallel for collapse(2) shared(nums, primes) schedule(static)
-    for(uint32_t i= start; i < nums.size(); ++i)
+    for(uint32_t i = start; i < nums.size(); ++i)
     {
         for(uint32_t j = 0; j < primes.size(); ++j)
         {
-            if(nums.at(i) % primes.at(j) == 0)
-                nums.at(i) = -1;
+            if(nums[i] % primes[j] == 0) {
+                nums[i] = -1;
+            }
+
         }
     }
 
     // ****** Uncomment these two lines to see primes printed in console ******
-    //copy_if(nums.begin(), nums.end(),
+    // copy_if(nums.begin(), nums.end(),
     //    ostream_iterator<int>{cout, " "}, [](int i){return i != -1;});
 
-    auto elapsed{omp_get_wtime() - start_time};
-    cout << "\nElapsed time: " << round(elapsed*1000) << " ms." << endl;
+    int sum = 0;
+    for (std::size_t i = 0; i < nums.size(); ++i) {
+        if (nums[i] != -1) {
+            ++sum;
+        }
+    }
+
+    auto end_time{omp_get_wtime()};
+    cout << sum << " primes found after " << (end_time - start_time) << "s." << endl;
 }

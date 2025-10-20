@@ -11,7 +11,7 @@ using namespace std;
 
 void usage(string const& program)
 {
-  std::cout << "Usage: " << program << "N" << std::endl;
+  std::cout << "Usage: " << program << " N" << std::endl;
   std::cout << std::endl;
   std::cout << "  N: max value" << std::endl;
   exit(1);
@@ -38,21 +38,26 @@ int main(int argc, char* argv[])
     uint32_t current_index{};
     int32_t current_prime{nums.front()};
     auto start_time{chrono::steady_clock::now()};
+    int sum = nums.size();
     while(current_prime*current_prime <= max)
     {
         for(size_t i{current_index+1}; i < nums.size(); ++i)
         {
-            if(nums.at(i) % current_prime == 0)
+            if(nums.at(i) % current_prime == 0) {
                 nums.at(i) = -1;
+                sum--;
+            }
         }
         do
             current_prime = nums.at(++current_index);
         while(current_prime == -1 && current_index < nums.size());
     }
-    auto elapsed{chrono::steady_clock::now() - start_time};
+    
+    auto end = chrono::steady_clock::now();
+    std::chrono::duration<double> duration = end - start_time;
 
     // ****** Uncomment these two lines to see primes printed in console ******
     //copy_if(nums.begin(), nums.end(),
     //        ostream_iterator<int>{cout, " "}, [](int i){return i != -1;});
-    cout << "\nElapsed time: " << chrono::duration_cast<chrono::milliseconds>(elapsed).count() << " ms." << endl;
+    cout << sum << " primes found after " << duration.count() << "s." << endl;
 }
