@@ -1,6 +1,6 @@
 *
 !*.*
 !*/
-temp.txt
+temp*.txt
 .vscode
 !Makefile

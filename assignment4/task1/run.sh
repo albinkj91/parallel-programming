@@ -6,8 +6,9 @@ delta=100000
 for (( i=0; i<3; i++ )) ; {
     for (( j=0; j<9; j++ )) ; {
         echo "Primes from 1 to "$N":"
-        echo -n "sequential:    "
-        ./sieve_sequential $N
+        # If you are brave, comment in the next 2 lines
+        # echo -n "sequential:    "
+        # ./sieve_sequential $N
         echo -n "pthreads:      "
         ./sieve_pthreads 32 $N
         echo -n "openmp:        "
@@ -20,6 +21,7 @@ for (( i=0; i<3; i++ )) ; {
         mpiexec --hostfile hosts ./sieve_mpi_bcast_reduce $N
         ((N+=delta))
         echo
+        sleep 10
     }
 
     echo
