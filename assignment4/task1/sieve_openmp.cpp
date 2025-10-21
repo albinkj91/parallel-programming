@@ -52,12 +52,12 @@ int main(int argc, char* argv[])
         while(current_prime == -1 && current_index < nums.size());
     }
 
-    start = static_cast<uint32_t>(primes.back()) + 1;
+    start = static_cast<uint64_t>(primes.back()) + 1;
 
     #pragma omp parallel for collapse(2) shared(nums, primes) schedule(static)
-    for(uint32_t i = start; i < nums.size(); ++i)
+    for(uint64_t i = start; i < nums.size(); ++i)
     {
-        for(uint32_t j = 0; j < primes.size(); ++j)
+        for(uint64_t j = 0; j < primes.size(); ++j)
         {
             if(nums[i] % primes[j] == 0) {
                 nums[i] = -1;
