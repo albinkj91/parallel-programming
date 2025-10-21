@@ -68,8 +68,8 @@ int main(int argc, char* argv[])
         primes.push_back(current_prime);
         for(size_t i{current_index+1}; i < sqrt(max); ++i)
         {
-            if(nums.at(i) % current_prime == 0) {
-                nums.at(i) = -1;
+            if(nums[i] % current_prime == 0) {
+                nums[i] = -1;
             }
         }
         do
@@ -106,7 +106,5 @@ int main(int argc, char* argv[])
 
     auto end = chrono::steady_clock::now();
     std::chrono::duration<double> duration = end - start_time;
-    //copy_if(nums.begin(), nums.end(),
-    //        ostream_iterator<int>{cout, " "}, [](int i){return i != -1;});
     cout << sum << " primes found after " << duration.count() << "s." << endl;
 }

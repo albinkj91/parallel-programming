@@ -44,11 +44,11 @@ void main_process(int argc, char** argv, int numOfProcesses) {
         int limit{static_cast<int>(sqrt(max))};
         for(int i = current_index+1; i < limit; ++i)
         {
-            if(nums.at(i) % current_prime == 0)
-                nums.at(i) = -1;
+            if(nums[i] % current_prime == 0)
+                nums[i] = -1;
         }
         do
-            current_prime = nums.at(++current_index);
+            current_prime = nums[++current_index];
         while(current_prime == -1 && current_index < nums.size());
     }
 
@@ -81,15 +81,6 @@ void worker_process(int rank) {
     MPI_Recv(start_end_numOfPrimes, 3, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     int* primes = new int[start_end_numOfPrimes[2]];
     MPI_Recv(primes, start_end_numOfPrimes[2], MPI_INT, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-    // std::stringstream s;
-    // s << start_end_numOfPrimes[0] << " " << start_end_numOfPrimes[1] << " [";
-    // for (int i = 0; i < start_end_numOfPrimes[2]; ++i) {
-    //     s << primes[i] << " ";
-    // }
-    // s << "]\n";
-    // std::string array = s.str();
-    // std::cout << array;
 
     int start = start_end_numOfPrimes[0];
     int end = start_end_numOfPrimes[1];

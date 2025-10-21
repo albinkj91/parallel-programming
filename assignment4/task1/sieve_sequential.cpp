@@ -43,13 +43,13 @@ int main(int argc, char* argv[])
     {
         for(size_t i{current_index+1}; i < nums.size(); ++i)
         {
-            if(nums.at(i) % current_prime == 0) {
-                nums.at(i) = -1;
+            if(nums[i] % current_prime == 0) {
+                nums[i] = -1;
                 sum--;
             }
         }
         do
-            current_prime = nums.at(++current_index);
+            current_prime = nums[++current_index];
         while(current_prime == -1 && current_index < nums.size());
     }
     

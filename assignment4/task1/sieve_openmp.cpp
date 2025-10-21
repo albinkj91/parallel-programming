@@ -66,10 +66,6 @@ int main(int argc, char* argv[])
         }
     }
 
-    // ****** Uncomment these two lines to see primes printed in console ******
-    // copy_if(nums.begin(), nums.end(),
-    //    ostream_iterator<int>{cout, " "}, [](int i){return i != -1;});
-
     int sum = 0;
     for (std::size_t i = 0; i < nums.size(); ++i) {
         if (nums[i] != -1) {

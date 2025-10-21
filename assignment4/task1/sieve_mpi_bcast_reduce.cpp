@@ -45,11 +45,11 @@ void main_process(int argc, char** argv, int numOfProcesses) {
         int limit{static_cast<int>(sqrt(max))};
         for(int i = current_index+1; i < limit; ++i)
         {
-            if(nums.at(i) % current_prime == 0)
-                nums.at(i) = -1;
+            if(nums[i] % current_prime == 0)
+                nums[i] = -1;
         }
         do
-            current_prime = nums.at(++current_index);
+            current_prime = nums[++current_index];
         while(current_prime == -1 && current_index < nums.size());
     }
 
